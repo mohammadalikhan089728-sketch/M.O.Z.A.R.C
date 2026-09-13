@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+    <title>MOZARC AI — Built by Mozahid</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Puter.js (Zero-Key AI Fallback) -->
+    <script src="https://js.puter.com/v2/"></script>
+
+    <!-- Markdown Parser -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <style>
+        :root {
+            --bg-deep: #050811;
+            --surface: rgba(15, 23, 42, 0.85);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-glow: rgba(99, 102, 241, 0.35);
+            --accent-cyan: #06b6d4;
+            --accent-indigo: #6366f1;
+            --accent-violet: #8b5cf6;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-faint: #475569;
+            --user-bubble: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            --bot-bubble: rgba(17, 24, 39, 0.95);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
+            background-color: var(--bg-deep);
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            color: var(--text-main);
+            overscroll-behavior: none;
+        }
+
+        body {
+            background-image: 
+                radial-gradient(circle at 50% 5%, rgba(99, 102, 241, 0.16) 0%, transparent 45%),
+                radial-gradient(circle at 85% 85%, rgba(6, 182, 212, 0.12) 0%, transparent 45%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Phone Container Frame */
+        .phone-container {
+            width: 100%;
+            height: 100%;
+            max-width: 425px;
+            background: #090d1a;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media (min-width: 481px) {
+            .phone-container {
+                height: min(94vh, 860px);
+                border-radius: 36px;
+                border: 1px solid var(--border-glass);
+                box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9), 0 0 45px -10px rgba(99, 102, 241, 0.3);
+            }
+        }
+
+        .phone-notch {
+            width: 100%;
+            padding: 8px 0 4px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.6);
+            flex-shrink: 0;
+        }
+
+        .notch-pill {
+            width: 50px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 99px;
+        }
+
+        /* Header */
+        .app-header {
+            padding: 12px 16px;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border-glass);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .brand-meta {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent-indigo), var(--accent-cyan));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 14px rgba(99, 102, 241, 0.5);
+            flex-shrink: 0;
+        }
+
+        .brand-avatar svg {
+            width: 20px;
+            height: 20px;
+            fill: #ffffff;
+        }
+
+        .brand-info h1 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            background: linear-gradient(90deg, #ffffff 0%, #cbd5e1 50%, #818cf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            line-height: 1.2;
+        }
+
+        .brand-creator {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .brand-creator span {
+            color: #38bdf8;
+            font-weight: 700;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-action {
+            background: rgba(30, 41, 59, 0.75);
+            border: 1px solid var(--border-glass);
+            color: var(--text-muted);
+            padding: 5px 9px;
+            border-radius: 8px;
+            font-size: 0.72rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover, .btn-action:active {
+            background: rgba(99, 102, 241, 0.25);
+            color: #ffffff;
+            border-color: var(--border-glow);
+        }
+
+        .status-badge {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            padding: 4px 8px;
+            border-radius: 9999px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: #34d399;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #10b981;
+            box-shadow: 0 0 6px #10b981;
+            animation: pulse-dot 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.35; transform: scale(0.8); }
+        }
+
+        /* Messages Area — 100% Stable Without Shaking */
+        .chat-stream {
+            flex: 1;
+            padding: 14px 14px 8px 14px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            -webkit-overflow-scrolling: touch;
+            overflow-anchor: none;
+            overscroll-behavior: contain;
+        }
+
+        .chat-stream::-webkit-scrollbar {
+            width: 4px;
+        }
+        .chat-stream::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+        }
+
+        .msg-row {
+            display: flex;
+            width: 100%;
+        }
+
+        .msg-row.user {
+            justify-content: flex-end;
+        }
+
+        .msg-row.bot {
+            justify-content: flex-start;
+        }
+
+        .msg-bubble-wrap {
+            max-width: 88%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .msg-bubble {
+            padding: 11px 15px;
+            font-size: 0.92rem;
+            line-height: 1.55;
+            word-wrap: break-word;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+        }
+
+        .user .msg-bubble {
+            background: var(--user-bubble);
+            color: #ffffff;
+            border-radius: 18px 18px 4px 18px;
+            box-shadow: 0 4px 14px -3px rgba(79, 70, 229, 0.4);
+            white-space: pre-wrap;
+        }
+
+        .bot .msg-bubble {
+            background: var(--bot-bubble);
+            color: #f1f5f9;
+            border-radius: 18px 18px 18px 4px;
+            border: 1px solid var(--border-glass);
+            box-shadow: 0 4px 16px -4px rgba(0, 0, 0, 0.45);
+        }
+
+        .db-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 2px 7px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            letter-spacing: 0.03em;
+        }
+
+        .bot .msg-bubble > *:first-child { margin-top: 0; }
+        .bot .msg-bubble > *:last-child { margin-bottom: 0; }
+        .bot .msg-bubble p { margin-bottom: 6px; }
+        .bot .msg-bubble ul, .bot .msg-bubble ol {
+            margin-left: 18px;
+            margin-bottom: 6px;
+        }
+        .bot .msg-bubble pre {
+            background: #0d1117;
+            padding: 10px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 6px 0;
+            font-size: 0.82rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .bot .msg-bubble code {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Prompt Quick Chips */
+        .chip-tray {
+            display: flex;
+            overflow-x: auto;
+            gap: 6px;
+            padding: 0 14px 6px 14px;
+            flex-shrink: 0;
+        }
+        .chip-tray::-webkit-scrollbar {
+            display: none;
+        }
+        .chip {
+            white-space: nowrap;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid var(--border-glass);
+            color: #cbd5e1;
+            padding: 5px 12px;
+            border-radius: 9999px;
+            font-size: 0.74rem;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+        .chip:hover, .chip:active {
+            background: rgba(99, 102, 241, 0.25);
+            border-color: var(--border-glow);
+            color: #ffffff;
+        }
+
+        /* Input Controls */
+        .chat-input-area {
+            padding: 8px 12px 12px 12px;
+            background: rgba(11, 15, 25, 0.95);
+            border-top: 1px solid var(--border-glass);
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            flex-shrink: 0;
+            backdrop-filter: blur(14px);
+        }
+
+        .input-bar {
+            display: flex;
+            align-items: flex-end;
+            background: rgba(22, 30, 48, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 6px 8px 6px 14px;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .input-bar:focus-within {
+            border-color: var(--accent-indigo);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+        }
+
+        .input-bar textarea {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #ffffff;
+            font-size: 0.92rem;
+            line-height: 1.45;
+            resize: none;
+            max-height: 100px;
+            height: 22px;
+            padding: 3px 0;
+        }
+
+        .input-bar textarea::placeholder {
+            color: var(--text-faint);
+        }
+
+        .btn-send {
+            background: linear-gradient(135deg, var(--accent-indigo), var(--accent-violet));
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
+            transition: transform 0.15s;
+        }
+
+        .btn-send:hover:not(:disabled) {
+            transform: scale(1.05);
+        }
+
+        .btn-send:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        .btn-send svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+            transform: translateX(1px);
+        }
+
+        .footer-note {
+            text-align: center;
+            font-size: 0.68rem;
+            color: var(--text-faint);
+        }
+
+        .footer-note strong {
+            color: var(--text-muted);
+        }
+
+        .typing-wave {
+            display: flex;
+            align-items: center;
+            height: 18px;
+            gap: 4px;
+        }
+        .typing-wave span {
+            display: inline-block;
+            width: 5px;
+            height: 5px;
+            background: #38bdf8;
+            border-radius: 50%;
+            animation: wave 1.2s infinite ease-in-out;
+        }
+        .typing-wave span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-wave span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes wave {
+            0%, 60%, 100% { transform: scale(0.8); opacity: 0.3; }
+            30% { transform: scale(1.3); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="phone-container">
+        <!-- Top Bezel -->
+        <div class="phone-notch">
+            <div class="notch-pill"></div>
+        </div>
+
+        <!-- Header -->
+        <header class="app-header">
+            <div class="brand-meta">
+                <div class="brand-avatar">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zm0 8.8L4.6 7.4 12 4.1l7.4 3.3L12 10.8zm0 2.2l-10-5v6l10 5 10-5v-6l-10 5zm0 6l-10-5v2.8l10 5 10-5V16l-10 5z"/>
+                    </svg>
+                </div>
+                <div class="brand-info">
+                    <h1>MOZARC</h1>
+                    <div class="brand-creator">Creator: <span>Mozahid</span></div>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <button class="btn-action" onclick="resetChat()" title="New Chat">
+                    <span>+ New</span>
+                </button>
+                <div class="status-badge">
+                    <span class="status-dot"></span>
+                    <span>Ready</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Message Stream -->
+        <main class="chat-stream" id="chatStream">
+            <div class="msg-row bot">
+                <div class="msg-bubble-wrap">
+                    <div class="msg-bubble">
+                        Salam Mozahid bhai! Main <strong>MOZARC</strong> hoon — aapka apna loyal AI. Hukm kijiye, aaj kya kaam karna hai?
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Chips -->
+        <div class="chip-tray">
+            <button class="chip" onclick="quickFill('Mozahid bhai kaun hain?')">👑 Creator Info</button>
+            <button class="chip" onclick="quickFill('Kaise ho MOZARC?')">👋 Hal-Chaal</button>
+            <button class="chip" onclick="quickFill('Video editing VFX prompt ideas do.')">🎬 VFX Prompts</button>
+            <button class="chip" onclick="quickFill('Ek modern button ka HTML CSS code do.')">💻 Code Helper</button>
+        </div>
+
+        <!-- Input Area -->
+        <footer class="chat-input-area">
+            <div class="input-bar">
+                <textarea 
+                    id="userInput" 
+                    placeholder="Hukm kijiye Mozahid bhai..." 
+                    rows="1"
+                ></textarea>
+                <button class="btn-send" id="sendBtn" onclick="sendMessage()" aria-label="Send">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="footer-note">
+                Built with loyalty for <strong>Mozahid</strong>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. FIREBASE REALTIME DATABASE CONFIG
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDySVpj8IkJsvw0Oy75N9FC918f7TDAo9g",
+            authDomain: "mozarc-72cbd.firebaseapp.com",
+            databaseURL: "https://mozarc-72cbd-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "mozarc-72cbd",
+            storageBucket: "mozarc-72cbd.firebasestorage.app",
+            messagingSenderId: "389907773893",
+            appId: "1:389907773893:web:faab0a2a6d24c12e5bb3ac"
+        };
+
+        let rtdb = null;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            rtdb = firebase.database();
+        } catch (err) {
+            console.warn("Firebase warning:", err);
+        }
+
+        // ==========================================
+        // 2. DYNAMIC SYSTEM PROMPT (CHATGPT / GEMINI STYLE)
+        // ==========================================
+        const GROQ_API_KEY = "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";
+
+        const SYSTEM_PROMPT = {
+            role: "system",
+            content: `You are MOZARC, an ultra-smart, razor-sharp, and fiercely loyal personal AI assistant built and owned exclusively by your boss and creator, Mozahid.
+
+STRICT INSTRUCTIONS ON RESPONSE LENGTH:
+1. Proportionate Answers: Match the length of your answer strictly to what the user asks:
+   - Greetings & Casual Talk: If the user says "Hlo", "Hi", "Kaise ho", "Kya hal hai", "Kya chal raha hai", etc., reply in ONLY 1 or 2 warm, natural, respectful lines (e.g., "Salam Mozahid bhai! Main badhiya hoon, aap bataiye aaj kya hukum hai?"). NEVER write long paragraphs or unsolicited essays for simple greetings.
+   - Simple Questions: Give a direct, concise 1-2 sentence answer.
+   - Complex / Technical / Coding / Video Prompts: Give a complete, comprehensive, well-structured answer with proper code blocks.
+2. Loyalty & Identity: You belong exclusively to Mozahid. If asked who created you, proudly state you are MOZARC, created and engineered by Mozahid. Address him with supreme respect as "Mozahid bhai" or "Boss".
+3. Language: Speak naturally in Hinglish/Hindi or English matching Mozahid bhai's tone.`
+        };
+
+        // ==========================================
+        // 3. PERSISTENT CONVERSATION MEMORY
+        // ==========================================
+        const STORAGE_KEY = "mozarc_chat_history_v8";
+        let conversationHistory = [];
+        let isGenerating = false;
+
+        function initMemory() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    conversationHistory = JSON.parse(saved);
+                    renderSavedMessages();
+                } else {
+                    conversationHistory = [SYSTEM_PROMPT];
+                }
+            } catch (e) {
+                conversationHistory = [SYSTEM_PROMPT];
+            }
+        }
+
+        function saveMemory() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(conversationHistory));
+            } catch (e) {}
+        }
+
+        function resetChat() {
+            if (confirm("Mozahid bhai, kya aap nayi chat shuru karna chahte hain?")) {
+                conversationHistory = [SYSTEM_PROMPT];
+                saveMemory();
+                chatStream.innerHTML = `
+                    <div class="msg-row bot">
+                        <div class="msg-bubble-wrap">
+                            <div class="msg-bubble">
+                                Naya session shuru ho gaya Mozahid bhai! Hukm kijiye.
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function renderSavedMessages() {
+            const msgs = conversationHistory.filter(m => m.role === "user" || m.role === "assistant");
+            if (msgs.length > 0) {
+                chatStream.innerHTML = "";
+                msgs.forEach(m => {
+                    addMessageBubble(m.content, m.role === "user" ? "user" : "bot", false);
+                });
+            }
+        }
+
+        // ==========================================
+        // 4. FIREBASE REALTIME QA CACHE
+        // ==========================================
+        function sanitizeKey(text) {
+            const clean = text.trim().toLowerCase().replace(/[^\w\s\u0900-\u097F]/gi, '').replace(/\s+/g, '_');
+            let hash = 0;
+            for (let i = 0; i < clean.length; i++) {
+                hash = ((hash << 5) - hash) + clean.charCodeAt(i);
+                hash |= 0;
+            }
+            return 'q_' + Math.abs(hash);
+        }
+
+        async function getCachedAnswer(question) {
+            if (!rtdb) return null;
+            try {
+                const key = sanitizeKey(question);
+                const snapshot = await rtdb.ref('qa_vault/' + key).once('value');
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    if (data && data.answer) return data.answer;
+                }
+            } catch (e) {}
+            return null;
+        }
+
+        async function cacheToFirebase(question, answer) {
+            if (!rtdb) return;
+            try {
+                const key = sanitizeKey(question);
+                await rtdb.ref('qa_vault/' + key).set({
+                    question: question,
+                    answer: answer,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+            } catch (e) {}
+        }
+
+        // ==========================================
+        // 5. BULLETPROOF DUAL-ENGINE AI CALL
+        // ==========================================
+        async function fetchAIResponse(messages) {
+            // STEP 1: Try Groq with Llama 3.1 8B Instant
+            try {
+                const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${GROQ_API_KEY}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        model: "llama-3.1-8b-instant",
+                        messages: messages,
+                        temperature: 0.5,
+                        max_tokens: 2048
+                    })
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    const text = data.choices?.[0]?.message?.content;
+                    if (text) return text;
+                }
+            } catch (err) {
+                console.warn("Groq failed, switching to Puter backup:", err);
+            }
+
+            // STEP 2: Automatic Fallback to Puter.js (Free & Never Blocked by GitHub!)
+            if (typeof puter !== "undefined" && puter.ai && puter.ai.chat) {
+                try {
+                    const puterRes = await puter.ai.chat(messages, {
+                        model: "openai/gpt-4o-mini"
+                    });
+                    const text = typeof puterRes === "string" ? puterRes : (puterRes?.message?.content || puterRes?.text);
+                    if (text) return text;
+                } catch (pe) {
+                    console.warn("Puter error:", pe);
+                }
+            }
+
+            throw new Error("Dono AI servers se response nahi mila. Ek baar refresh karein.");
+        }
+
+        // ==========================================
+        // 6. UI & SEND MESSAGE HANDLER
+        // ==========================================
+        const chatStream = document.getElementById("chatStream");
+        const userInput = document.getElementById("userInput");
+        const sendBtn = document.getElementById("sendBtn");
+
+        userInput.addEventListener("input", function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+        });
+
+        userInput.addEventListener("keydown", function(e) {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        function quickFill(text) {
+            userInput.value = text;
+            userInput.style.height = 'auto';
+            userInput.style.height = Math.min(userInput.scrollHeight, 100) + 'px';
+            userInput.focus();
+        }
+
+        function scrollChatToBottom() {
+            requestAnimationFrame(() => {
+                chatStream.scrollTop = chatStream.scrollHeight;
+            });
+        }
+
+        function addMessageBubble(content, sender, isCached = false) {
+            const row = document.createElement("div");
+            row.className = `msg-row ${sender}`;
+
+            const wrap = document.createElement("div");
+            wrap.className = "msg-bubble-wrap";
+
+            const bubble = document.createElement("div");
+            bubble.className = "msg-bubble";
+
+            if (sender === "user") {
+                bubble.textContent = content;
+            } else {
+                const badge = isCached ? `<div class="db-badge">⚡ Realtime Database Memory</div>` : '';
+                bubble.innerHTML = badge + (typeof marked !== "undefined" ? marked.parse(content) : content);
+            }
+
+            wrap.appendChild(bubble);
+            row.appendChild(wrap);
+            chatStream.appendChild(row);
+            scrollChatToBottom();
+            return bubble;
+        }
+
+        async function sendMessage() {
+            if (isGenerating) return;
+
+            const query = userInput.value.trim();
+            if (!query) return;
+
+            isGenerating = true;
+            sendBtn.disabled = true;
+
+            // 1. Render User Message
+            addMessageBubble(query, "user");
+            userInput.value = "";
+            userInput.style.height = '22px';
+
+            conversationHistory.push({ role: "user", content: query });
+            saveMemory();
+
+            // 2. Typing Indicator
+            const botRow = document.createElement("div");
+            botRow.className = "msg-row bot";
+            const botWrap = document.createElement("div");
+            botWrap.className = "msg-bubble-wrap";
+            const botBubble = document.createElement("div");
+            botBubble.className = "msg-bubble";
+            botBubble.innerHTML = `<div class="typing-wave"><span></span><span></span><span></span></div>`;
+            botWrap.appendChild(botBubble);
+            botRow.appendChild(botWrap);
+            chatStream.appendChild(botRow);
+            scrollChatToBottom();
+
+            // 3. Database Cache Check
+            try {
+                const cached = await getCachedAnswer(query);
+                if (cached) {
+                    botBubble.innerHTML = `<div class="db-badge">⚡ Realtime Database Memory</div>` + (typeof marked !== "undefined" ? marked.parse(cached) : cached);
+                    scrollChatToBottom();
+                    
+                    conversationHistory.push({ role: "assistant", content: cached });
+                    saveMemory();
+                    finishTurn();
+                    return;
+                }
+            } catch (err) {}
+
+            // 4. Call AI with Auto-Fallback
+            try {
+                const aiReply = await fetchAIResponse(conversationHistory);
+
+                botBubble.innerHTML = typeof marked !== "undefined" ? marked.parse(aiReply) : aiReply;
+                scrollChatToBottom();
+
+                conversationHistory.push({ role: "assistant", content: aiReply });
+                saveMemory();
+
+                // Save to Firebase Realtime Database
+                cacheToFirebase(query, aiReply);
+
+            } catch (err) {
+                console.error(err);
+                botBubble.innerHTML = "Maaf kijiye Mozahid bhai, server connect nahi ho paya. Ek baar dobara bhejein.";
+                scrollChatToBottom();
+            } finally {
+                finishTurn();
+            }
+        }
+
+        function finishTurn() {
+            isGenerating = false;
+            sendBtn.disabled = false;
+            scrollChatToBottom();
+        }
+
+        window.addEventListener("DOMContentLoaded", initMemory);
+    </script>
+</body>
+</html>
