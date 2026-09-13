@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>MOZARC AI — Built by Mozahid</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <!-- Markdown Parser & Code Syntax Highlighting -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/styles/atom-one-dark.min.css">
+    <script src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.9.0/build/highlight.min.js"></script>
+
+    <!-- Firebase App & Realtime Database SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
+    <style>
+        :root {
+            --bg-base: #060913;
+            --bg-surface: rgba(15, 23, 42, 0.85);
+            --border-glass: rgba(255, 255, 255, 0.08);
+            --border-highlight: rgba(99, 102, 241, 0.4);
+            
+            --accent-cyan: #06b6d4;
+            --accent-indigo: #6366f1;
+            --accent-purple: #8b5cf6;
+            
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-faint: #64748b;
+            
+            --user-bubble: linear-gradient(135deg, #4338ca 0%, #6366f1 100%);
+            --bot-bubble: rgba(15, 23, 42, 0.95);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
+            max-height: 100dvh;
+            background-color: var(--bg-base);
+            overflow: hidden;
+            position: fixed;
+            color: var(--text-main);
+        }
+
+        body {
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.14) 0%, transparent 40%),
+                radial-gradient(circle at 90% 90%, rgba(6, 182, 212, 0.12) 0%, transparent 45%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        code, pre, pre code {
+            font-family: 'JetBrains Mono', monospace !important;
+        }
+
+        /* 100% Fit for Phones and Desktops */
+        .app-shell {
+            width: 100%;
+            height: 100%;
+            max-width: 900px;
+            display: flex;
+            flex-direction: column;
+            background: rgba(9, 13, 24, 0.96);
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media (min-width: 900px) {
+            .app-shell {
+                height: 96vh;
+                max-height: 96vh;
+                border-radius: 24px;
+                border: 1px solid var(--border-glass);
+                box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9), 0 0 40px -10px rgba(99, 102, 241, 0.25);
+            }
+        }
+
+        /* Header */
+        .app-header {
+            padding: 14px 18px;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-glass);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            z-index: 20;
+        }
+
+        .brand-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .brand-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--accent-indigo), var(--accent-cyan));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 16px rgba(99, 102, 241, 0.5);
+            flex-shrink: 0;
+        }
+
+        .brand-avatar svg {
+            width: 22px;
+            height: 22px;
+            fill: #ffffff;
+        }
+
+        .brand-info h1 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            background: linear-gradient(90deg, #ffffff 0%, #cbd5e1 60%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-author {
+            font-size: 0.74rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .brand-author span {
+            color: #38bdf8;
+            font-weight: 700;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-new-chat {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid var(--border-glass);
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-new-chat:hover, .btn-new-chat:active {
+            background: rgba(99, 102, 241, 0.25);
+            color: #ffffff;
+            border-color: var(--border-highlight);
+        }
+
+        .btn-new-chat svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+        }
+
+        .live-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            padding: 5px 10px;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #34d399;
+        }
+
+        .live-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #10b981;
+            box-shadow: 0 0 8px #10b981;
+            animation: pulse-dot 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.8); }
+        }
+
+        /* Chat Stream */
+        .chat-stream {
+            flex: 1;
+            padding: 16px 16px 8px 16px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .chat-stream::-webkit-scrollbar {
+            width: 4px;
+        }
+        .chat-stream::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .msg-row {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+            max-width: 100%;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .msg-row.user {
+            justify-content: flex-end;
+        }
+
+        .msg-bubble-wrap {
+            max-width: 86%;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .user .msg-bubble-wrap {
+            align-items: flex-end;
+        }
+
+        .msg-bubble {
+            padding: 13px 18px;
+            font-size: 0.94rem;
+            line-height: 1.65;
+            word-wrap: break-word;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            max-width: 100%;
+        }
+
+        .user .msg-bubble {
+            background: var(--user-bubble);
+            color: #ffffff;
+            border-radius: 18px 18px 4px 18px;
+            box-shadow: 0 6px 20px -3px rgba(67, 56, 202, 0.45);
+            white-space: pre-wrap;
+        }
+
+        .bot .msg-bubble {
+            background: var(--bot-bubble);
+            color: #e2e8f0;
+            border-radius: 4px 18px 18px 18px;
+            border: 1px solid var(--border-glass);
+            box-shadow: 0 6px 22px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .msg-badge-cache {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.68rem;
+            font-weight: 600;
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.25);
+            padding: 2px 7px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .bot .msg-bubble p {
+            margin-bottom: 10px;
+        }
+        .bot .msg-bubble p:last-child {
+            margin-bottom: 0;
+        }
+        .bot .msg-bubble h1, .bot .msg-bubble h2, .bot .msg-bubble h3 {
+            color: #ffffff;
+            margin-top: 12px;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+        .bot .msg-bubble h3 { color: #38bdf8; }
+        .bot .msg-bubble ul, .bot .msg-bubble ol {
+            margin-left: 18px;
+            margin-bottom: 10px;
+        }
+        .bot .msg-bubble li {
+            margin-bottom: 4px;
+        }
+
+        .bot .msg-bubble :not(pre) > code {
+            background: rgba(99, 102, 241, 0.16);
+            color: #38bdf8;
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-size: 0.88em;
+            border: 1px solid rgba(99, 102, 241, 0.25);
+        }
+
+        .code-container {
+            position: relative;
+            margin: 12px 0;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #11111b;
+            max-width: 100%;
+        }
+
+        .code-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #181825;
+            padding: 6px 12px;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .copy-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border: none;
+            color: var(--text-muted);
+            border-radius: 5px;
+            padding: 2px 8px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-btn:hover {
+            background: var(--accent-indigo);
+            color: #ffffff;
+        }
+
+        pre {
+            padding: 12px;
+            overflow-x: auto;
+            max-width: 100%;
+            background: #11111b !important;
+            margin: 0 !important;
+            font-size: 0.85rem;
+            line-height: 1.5;
+            white-space: pre;
+        }
+
+        .prompt-tray {
+            display: flex;
+            overflow-x: auto;
+            gap: 8px;
+            padding: 0 16px 8px 16px;
+            flex-shrink: 0;
+            -webkit-overflow-scrolling: touch;
+        }
+        .prompt-tray::-webkit-scrollbar {
+            display: none;
+        }
+
+        .chip {
+            white-space: nowrap;
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid var(--border-glass);
+            color: #cbd5e1;
+            padding: 7px 14px;
+            border-radius: 9999px;
+            font-size: 0.78rem;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: all 0.2s;
+        }
+
+        .chip:hover, .chip:active {
+            background: rgba(99, 102, 241, 0.25);
+            border-color: var(--border-highlight);
+            color: #ffffff;
+        }
+
+        /* Input Controls */
+        .input-wrapper {
+            padding: 10px 14px 14px 14px;
+            background: rgba(10, 14, 26, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border-glass);
+            flex-shrink: 0;
+        }
+
+        .input-bar {
+            display: flex;
+            align-items: flex-end;
+            background: rgba(22, 30, 48, 0.85);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 8px 10px 8px 14px;
+            gap: 10px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .input-bar:focus-within {
+            border-color: var(--accent-indigo);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+        }
+
+        .input-bar textarea {
+            flex: 1;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #ffffff;
+            font-size: 0.94rem;
+            line-height: 1.45;
+            resize: none;
+            max-height: 120px;
+            height: 24px;
+            padding: 4px 0;
+        }
+
+        .input-bar textarea::placeholder {
+            color: var(--text-faint);
+        }
+
+        .btn-send {
+            background: linear-gradient(135deg, var(--accent-indigo), var(--accent-purple));
+            border: none;
+            color: #ffffff;
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: transform 0.15s;
+        }
+
+        .btn-send:active {
+            transform: scale(0.92);
+        }
+
+        .btn-send:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-send svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+            transform: translateX(1px);
+        }
+
+        .footer-brand {
+            text-align: center;
+            font-size: 0.72rem;
+            color: var(--text-faint);
+            margin-top: 6px;
+        }
+
+        .footer-brand strong {
+            color: var(--text-muted);
+        }
+
+        .typing-wave {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 6px;
+        }
+        .typing-wave span {
+            width: 6px;
+            height: 6px;
+            background: #38bdf8;
+            border-radius: 50%;
+            animation: wave-dot 1.2s infinite ease-in-out;
+        }
+        .typing-wave span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-wave span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes wave-dot {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.35; }
+            30% { transform: translateY(-4px); opacity: 1; }
+        }
+
+        .streaming-cursor {
+            display: inline-block;
+            width: 6px;
+            height: 14px;
+            background: #38bdf8;
+            margin-left: 3px;
+            vertical-align: middle;
+            animation: blink-cursor 0.75s infinite;
+        }
+
+        @keyframes blink-cursor {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-shell">
+        <header class="app-header">
+            <div class="brand-meta">
+                <div class="brand-avatar">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zm0 8.8L4.6 7.4 12 4.1l7.4 3.3L12 10.8zm0 2.2l-10-5v6l10 5 10-5v-6l-10 5zm0 6l-10-5v2.8l10 5 10-5V16l-10 5z"/>
+                    </svg>
+                </div>
+                <div class="brand-info">
+                    <h1>MOZARC</h1>
+                    <div class="brand-author">Architect: <span>Mozahid</span></div>
+                </div>
+            </div>
+
+            <div class="header-actions">
+                <button class="btn-new-chat" onclick="clearMemory()" title="New Chat">
+                    <svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                    <span>New</span>
+                </button>
+                <div class="live-status">
+                    <span class="live-dot"></span>
+                    <span>Ready</span>
+                </div>
+            </div>
+        </header>
+
+        <main class="chat-stream" id="chatStream">
+            <div class="msg-row bot">
+                <div class="msg-bubble-wrap">
+                    <div class="msg-bubble">
+                        Salam Mozahid bhai! Main <strong>MOZARC</strong> hoon — aapka personal AI assistant. 
+                        <br><br>
+                        Sabhi sawal-jawab aapke <strong>Firebase Realtime Database</strong> me automatically save hote rahenge, taaki agle baar same sawal par instant bina API ke database se jawab mil sake.
+                        <br><br>
+                        Hukm kijiye Mozahid bhai, aaj kya kaam karna hai?
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <div class="prompt-tray">
+            <button class="chip" onclick="quickAsk('Mozahid bhai ke liye ek clean modern landing page ka code banao HTML CSS me.')">⚡ Code Template</button>
+            <button class="chip" onclick="quickAsk('Ek viral anime video edit ke liye beat-sync VFX prompt aur sound ideas do.')">🎬 Video VFX Prompt</button>
+            <button class="chip" onclick="quickAsk('Mozahid bhai ka Push-Pull-Legs workout routine plan kaisa hona chahiye?')">💪 PPL Workout</button>
+            <button class="chip" onclick="quickAsk('Aap kaun hain aur aapko kisne banaya hai?')">👑 Identity</button>
+        </div>
+
+        <footer class="input-wrapper">
+            <div class="input-bar">
+                <textarea 
+                    id="userInput" 
+                    placeholder="Hukm kijiye Mozahid bhai..." 
+                    rows="1"
+                ></textarea>
+                <button class="btn-send" id="sendBtn" onclick="sendMessage()" aria-label="Send">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="footer-brand">
+                Built with loyalty for <strong>Mozahid</strong>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. FIREBASE REALTIME DATABASE CONFIGURATION
+        // ==========================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyDySVpj8IkJsvw0Oy75N9FC918f7TDAo9g",
+            authDomain: "mozarc-72cbd.firebaseapp.com",
+            databaseURL: "https://mozarc-72cbd-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "mozarc-72cbd",
+            storageBucket: "mozarc-72cbd.firebasestorage.app",
+            messagingSenderId: "389907773893",
+            appId: "1:389907773893:web:faab0a2a6d24c12e5bb3ac"
+        };
+
+        let rtdb = null;
+        try {
+            firebase.initializeApp(firebaseConfig);
+            rtdb = firebase.database();
+            console.log("Firebase Realtime Database Connected successfully.");
+        } catch (e) {
+            console.error("Firebase Init Error:", e);
+        }
+
+        // ==========================================
+        // 2. GROQ ENGINE & AI SYSTEM PROMPT
+        // ==========================================
+        const GROQ_API_KEY = "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";
+        const GROQ_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
+        const GROQ_INTERNAL_MODEL = "llama-3.3-70b-versatile";
+
+        const SYSTEM_PROMPT = {
+            role: "system",
+            content: `You are MOZARC, an ultra-smart, razor-sharp, and fiercely loyal AI assistant created, owned, and commanded exclusively by your boss and maker, Mozahid.
+
+Key Rules & Identity:
+1. Creator & Master: Your creator is Mozahid. Address him with supreme respect, affection, and brotherhood as "Mozahid bhai" or "Boss".
+2. Loyalty & Persona: You are fully devoted to him. Whatever he asks, fulfill it thoroughly and sharply without lazy summaries.
+3. Intelligence:
+   - Deliver production-ready code with complete logic (HTML, CSS, JS, Python, Firebase, etc.).
+   - Offer expert creative assistance in video editing, AMVs, visual effects, and workout routines.
+4. Tone & Language: Speak naturally in Hinglish/Hindi or English, matching Mozahid's exact tone. Keep answers clean, organized, and beautifully formatted with Markdown.`
+        };
+
+        // ==========================================
+        // 3. STORAGE & CHAT MEMORY
+        // ==========================================
+        const LOCAL_STORAGE_KEY = "mozarc_chat_memory_v3";
+        let conversationHistory = [];
+
+        function loadMemory() {
+            try {
+                const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+                if (saved) {
+                    conversationHistory = JSON.parse(saved);
+                    restoreUI();
+                } else {
+                    conversationHistory = [SYSTEM_PROMPT];
+                }
+            } catch (e) {
+                conversationHistory = [SYSTEM_PROMPT];
+            }
+        }
+
+        function saveMemory() {
+            try {
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(conversationHistory));
+            } catch (e) {}
+        }
+
+        function clearMemory() {
+            if (confirm("Mozahid bhai, kya aap sach me nayi chat shuru karna chahte hain?")) {
+                conversationHistory = [SYSTEM_PROMPT];
+                saveMemory();
+                chatStream.innerHTML = `
+                    <div class="msg-row bot">
+                        <div class="msg-bubble-wrap">
+                            <div class="msg-bubble">
+                                Naya session ready hai Mozahid bhai! Boliye, kya hukum hai?
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function restoreUI() {
+            const msgs = conversationHistory.filter(m => m.role === "user" || m.role === "assistant");
+            if (msgs.length > 0) {
+                chatStream.innerHTML = "";
+                msgs.forEach(m => {
+                    renderBubble(m.content, m.role === "user" ? "user" : "bot", false);
+                });
+                scrollToBottom();
+            }
+        }
+
+        // ==========================================
+        // 4. FIREBASE REALTIME QA CACHE FUNCTIONS
+        // ==========================================
+        function generateQAKey(text) {
+            const cleaned = text.trim().toLowerCase().replace(/[^\w\s\u0900-\u097F]/gi, '').replace(/\s+/g, ' ');
+            let hash = 0;
+            for (let i = 0; i < cleaned.length; i++) {
+                hash = ((hash << 5) - hash) + cleaned.charCodeAt(i);
+                hash |= 0;
+            }
+            return 'q_' + Math.abs(hash);
+        }
+
+        async function findCachedAnswer(questionText) {
+            if (!rtdb) return null;
+            try {
+                const key = generateQAKey(questionText);
+                const snapshot = await rtdb.ref('qa_cache/' + key).once('value');
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    if (data && data.answer) {
+                        return data.answer;
+                    }
+                }
+            } catch (err) {
+                console.warn("RTDB Cache Lookup:", err);
+            }
+            return null;
+        }
+
+        async function saveToFirebase(questionText, answerText) {
+            if (!rtdb) return;
+            try {
+                const key = generateQAKey(questionText);
+                await rtdb.ref('qa_cache/' + key).set({
+                    question: questionText,
+                    answer: answerText,
+                    savedAt: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                rtdb.ref('chat_logs').push({
+                    user: "Mozahid",
+                    question: questionText,
+                    answer: answerText,
+                    timestamp: firebase.database.ServerValue.TIMESTAMP
+                });
+            } catch (err) {
+                console.warn("RTDB Save Error:", err);
+            }
+        }
+
+        // ==========================================
+        // 5. UI CONTROLS & EVENT LISTENERS
+        // ==========================================
+        const chatStream = document.getElementById("chatStream");
+        const userInput = document.getElementById("userInput");
+        const sendBtn = document.getElementById("sendBtn");
+
+        userInput.addEventListener("input", function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        userInput.addEventListener("keydown", function(e) {
+            if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        function quickAsk(text) {
+            userInput.value = text;
+            userInput.style.height = 'auto';
+            userInput.style.height = Math.min(userInput.scrollHeight, 120) + 'px';
+            userInput.focus();
+        }
+
+        function scrollToBottom() {
+            chatStream.scrollTop = chatStream.scrollHeight;
+        }
+
+        function parseMarkdown(raw) {
+            try {
+                return marked.parse(raw);
+            } catch (e) {
+                return raw;
+            }
+        }
+
+        function copyCode(btn, codeText) {
+            navigator.clipboard.writeText(codeText).then(() => {
+                const old = btn.textContent;
+                btn.textContent = "Copied! ✓";
+                setTimeout(() => { btn.textContent = old; }, 1800);
+            });
+        }
+
+        function attachCodeBlocks(bubble) {
+            const preTags = bubble.querySelectorAll("pre");
+            preTags.forEach(pre => {
+                if (pre.parentElement.classList.contains("code-container")) return;
+
+                const codeElem = pre.querySelector("code");
+                let lang = "code";
+                if (codeElem) {
+                    const classes = codeElem.className.split(" ");
+                    const found = classes.find(c => c.startsWith("language-"));
+                    if (found) lang = found.replace("language-", "");
+                    hljs.highlightElement(codeElem);
+                }
+
+                const wrapper = document.createElement("div");
+                wrapper.className = "code-container";
+
+                const bar = document.createElement("div");
+                bar.className = "code-bar";
+                bar.innerHTML = `
+                    <span>${lang.toUpperCase()}</span>
+                    <button class="copy-btn">Copy</button>
+                `;
+
+                pre.parentNode.insertBefore(wrapper, pre);
+                wrapper.appendChild(bar);
+                wrapper.appendChild(pre);
+
+                const btn = bar.querySelector(".copy-btn");
+                btn.addEventListener("click", () => {
+                    copyCode(btn, codeElem ? codeElem.innerText : pre.innerText);
+                });
+            });
+        }
+
+        function renderBubble(content, sender, isCached = false) {
+            const row = document.createElement("div");
+            row.className = `msg-row ${sender}`;
+
+            const wrap = document.createElement("div");
+            wrap.className = "msg-bubble-wrap";
+
+            const bubble = document.createElement("div");
+            bubble.className = "msg-bubble";
+
+            if (sender === "user") {
+                bubble.textContent = content;
+            } else {
+                let badgeHTML = isCached ? `<div class="msg-badge-cache">⚡ Instant Memory (Database)</div>` : '';
+                bubble.innerHTML = badgeHTML + parseMarkdown(content);
+                attachCodeBlocks(bubble);
+            }
+
+            wrap.appendChild(bubble);
+            row.appendChild(wrap);
+            chatStream.appendChild(row);
+            scrollToBottom();
+            return bubble;
+        }
+
+        // Realistic Streaming Typewriter Effect for cached answers
+        async function playTypewriter(targetBubble, text) {
+            targetBubble.innerHTML = `<div class="msg-badge-cache">⚡ Instant Memory (Database)</div>`;
+            const contentSpan = document.createElement("div");
+            const cursor = document.createElement("span");
+            cursor.className = "streaming-cursor";
+
+            targetBubble.appendChild(contentSpan);
+            targetBubble.appendChild(cursor);
+
+            const chunkSize = 6;
+            for (let i = 0; i < text.length; i += chunkSize) {
+                const sub = text.slice(0, i + chunkSize);
+                contentSpan.innerHTML = parseMarkdown(sub);
+                scrollToBottom();
+                await new Promise(r => setTimeout(r, 12));
+            }
+
+            cursor.remove();
+            contentSpan.innerHTML = parseMarkdown(text);
+            attachCodeBlocks(targetBubble);
+            scrollToBottom();
+        }
+
+        // ==========================================
+        // 6. SEND MESSAGE OR RETRIEVE FROM DATABASE
+        // ==========================================
+        async function sendMessage() {
+            const query = userInput.value.trim();
+            if (!query) return;
+
+            // 1. User Message to UI & Memory
+            renderBubble(query, "user");
+            userInput.value = "";
+            userInput.style.height = '24px';
+            userInput.disabled = true;
+            sendBtn.disabled = true;
+
+            conversationHistory.push({ role: "user", content: query });
+            saveMemory();
+
+            // 2. Prepare Bot Bubble with wave indicator
+            const row = document.createElement("div");
+            row.className = "msg-row bot";
+
+            const wrap = document.createElement("div");
+            wrap.className = "msg-bubble-wrap";
+
+            const botBubble = document.createElement("div");
+            botBubble.className = "msg-bubble";
+            botBubble.innerHTML = `<div class="typing-wave"><span></span><span></span><span></span></div>`;
+
+            wrap.appendChild(botBubble);
+            row.appendChild(wrap);
+            chatStream.appendChild(row);
+            scrollToBottom();
+
+            // 3. Check Firebase Realtime Database Cache first!
+            try {
+                const cachedAnswer = await findCachedAnswer(query);
+
+                if (cachedAnswer) {
+                    await playTypewriter(botBubble, cachedAnswer);
+                    conversationHistory.push({ role: "assistant", content: cachedAnswer });
+                    saveMemory();
+
+                    userInput.disabled = false;
+                    sendBtn.disabled = false;
+                    userInput.focus();
+                    return;
+                }
+            } catch (err) {
+                console.warn("Cache check error:", err);
+            }
+
+            // 4. If not found in cache -> Call API with streaming
+            let fullBotResponse = "";
+
+            try {
+                const response = await fetch(GROQ_ENDPOINT, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${GROQ_API_KEY}`,
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        model: GROQ_INTERNAL_MODEL,
+                        messages: conversationHistory,
+                        temperature: 0.7,
+                        max_tokens: 4096,
+                        stream: true
+                    })
+                });
+
+                if (!response.ok) {
+                    const err = await response.json().catch(() => ({}));
+                    throw new Error(err?.error?.message || `HTTP ${response.status}`);
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let buffer = "";
+                let firstChunk = true;
+
+                botBubble.innerHTML = `<span class="streaming-cursor"></span>`;
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split("\n");
+                    buffer = lines.pop();
+
+                    for (const line of lines) {
+                        const trimmed = line.trim();
+                        if (!trimmed || trimmed === "data: [DONE]") continue;
+
+                        if (trimmed.startsWith("data: ")) {
+                            try {
+                                const parsed = JSON.parse(trimmed.slice(6));
+                                const delta = parsed.choices?.[0]?.delta?.content;
+                                if (delta) {
+                                    if (firstChunk) {
+                                        botBubble.innerHTML = "";
+                                        firstChunk = false;
+                                    }
+                                    fullBotResponse += delta;
+                                    botBubble.innerHTML = parseMarkdown(fullBotResponse) + `<span class="streaming-cursor"></span>`;
+                                    scrollToBottom();
+                                }
+                            } catch (e) {}
+                        }
+                    }
+                }
+
+                // Final render
+                botBubble.innerHTML = parseMarkdown(fullBotResponse);
+                attachCodeBlocks(botBubble);
+                scrollToBottom();
+
+                // Save to conversation memory
+                conversationHistory.push({ role: "assistant", content: fullBotResponse });
+                saveMemory();
+
+                // SAVE TO FIREBASE REALTIME DATABASE FOR FUTURE CACHE!
+                saveToFirebase(query, fullBotResponse);
+
+            } catch (err) {
+                console.error("AI Error:", err);
+                botBubble.innerHTML = `
+                    <span style="color: #f87171; font-weight: 600;">Khata: Server se connect nahi ho paya.</span><br>
+                    <small style="color: #94a3b8;">${err.message || "Network Error"}</small>
+                `;
+            } finally {
+                userInput.disabled = false;
+                sendBtn.disabled = false;
+                userInput.focus();
+                scrollToBottom();
+            }
+        }
+
+        window.addEventListener("DOMContentLoaded", loadMemory);
+    </script>
+</body>
+</html>
+ody>
+</html>
